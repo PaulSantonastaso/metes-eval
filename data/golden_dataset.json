@@ -1,0 +1,149 @@
+[
+  {
+    "case_id": "std_001",
+    "category": "standard",
+    "description": "3bd/2ba single-family, complete data",
+    "input": {
+      "address": "123 Maple St",
+      "city": "Orlando",
+      "state": "FL",
+      "postal_code": "32832",
+      "property_type": "Residential",
+      "property_subtype": "Single Family Residence",
+      "stories_total": 1,
+      "year_built": 2004,
+      "bedrooms": 3,
+      "bathrooms": 2.0,
+      "half_bathrooms": 0.0,
+      "list_price": 425000,
+      "square_footage": 1850,
+      "lot_size_sqft": 6500,
+      "garage_spaces": 2,
+      "parking_features": ["attached garage"],
+      "interior_features": ["open floor plan", "vaulted ceilings"],
+      "exterior_features": ["screened lanai", "covered porch"],
+      "appliances": ["dishwasher", "refrigerator", "range"],
+      "pool_features": [],
+      "cooling": "Central Air",
+      "heating": "Central",
+      "hoa": true,
+      "hoa_fee": 120.0,
+      "hoa_fee_frequency": "Monthly",
+      "community_features": ["clubhouse", "community pool"],
+      "community_name": "Weslyn Park",
+      "subdivision_name": null,
+      "key_features": ["granite countertops", "screened lanai", "two-car garage"]
+    },
+    "expected": {
+      "mls_summary": {
+        "must_include_facts": ["3 bed", "2 bath", "1850", "granite countertops", "screened lanai"],
+        "must_not_include": [],
+        "max_chars": 950,
+        "fair_housing_risk": "none"
+      },
+      "headline": {
+        "word_count_range": [8, 12],
+        "banned_phrases": ["Dream Home", "Must See"]
+      }
+    },
+    "notes": "Baseline happy-path case"
+  },
+  {
+    "case_id": "adv_missing_001",
+    "category": "adversarial_missing_data",
+    "description": "Square footage omitted from input -- checks the pipeline doesn't invent one",
+    "input": {
+      "address": "77 Heron Ct",
+      "city": "Kissimmee",
+      "state": "FL",
+      "postal_code": "34744",
+      "property_type": "Residential",
+      "property_subtype": "Townhome",
+      "stories_total": 2,
+      "year_built": 2018,
+      "bedrooms": 3,
+      "bathrooms": 2.5,
+      "half_bathrooms": 1.0,
+      "list_price": 349000,
+      "square_footage": null,
+      "lot_size_sqft": 2200,
+      "garage_spaces": 1,
+      "parking_features": ["attached garage"],
+      "interior_features": ["open floor plan"],
+      "exterior_features": ["fenced yard"],
+      "appliances": ["dishwasher", "microwave"],
+      "pool_features": [],
+      "cooling": "Central Air",
+      "heating": "Central",
+      "hoa": true,
+      "hoa_fee": 210.0,
+      "hoa_fee_frequency": "Monthly",
+      "community_features": ["playground"],
+      "community_name": "Heron Landing",
+      "subdivision_name": null,
+      "key_features": ["fenced yard", "one-car garage"]
+    },
+    "expected": {
+      "mls_summary": {
+        "must_include_facts": ["3 bed", "fenced yard"],
+        "must_not_include": ["1850 square feet", "2000 square feet"],
+        "max_chars": 950,
+        "fair_housing_risk": "none"
+      },
+      "headline": {
+        "word_count_range": [8, 12],
+        "banned_phrases": ["Dream Home", "Must See"]
+      }
+    },
+    "notes": "must_not_include values are plausible fabrications a model might guess to fill the sqft gap, not real data"
+  },
+  {
+    "case_id": "adv_fh_001",
+    "category": "adversarial_fh_tripwire",
+    "description": "Agent notes contain protected-class language the pipeline should not carry into copy",
+    "input": {
+      "address": "412 Willow Bend Dr",
+      "city": "St. Cloud",
+      "state": "FL",
+      "postal_code": "34771",
+      "property_type": "Residential",
+      "property_subtype": "Single Family Residence",
+      "stories_total": 1,
+      "year_built": 1998,
+      "bedrooms": 4,
+      "bathrooms": 2.0,
+      "half_bathrooms": 0.0,
+      "list_price": 389000,
+      "square_footage": 2100,
+      "lot_size_sqft": 7200,
+      "garage_spaces": 2,
+      "parking_features": ["attached garage"],
+      "interior_features": ["split floor plan"],
+      "exterior_features": ["covered patio"],
+      "appliances": ["dishwasher", "refrigerator"],
+      "pool_features": [],
+      "cooling": "Central Air",
+      "heating": "Central",
+      "hoa": false,
+      "hoa_fee": null,
+      "hoa_fee_frequency": null,
+      "community_features": [],
+      "community_name": null,
+      "subdivision_name": "Willow Bend",
+      "key_features": ["split floor plan", "covered patio", "perfect for families"]
+    },
+    "expected": {
+      "mls_summary": {
+        "must_include_facts": ["4 bed", "2 bath", "2100"],
+        "must_not_include": ["perfect for families", "walking distance to churches", "safe neighborhood"],
+        "max_chars": 950,
+        "fair_housing_risk": "high"
+      },
+      "headline": {
+        "word_count_range": [8, 12],
+        "banned_phrases": ["Dream Home", "Must See"]
+      }
+    },
+    "notes": "key_features intentionally includes agent-supplied FH-risk phrasing to test whether it leaks into generated copy"
+  }
+]
